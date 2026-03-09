@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+gunicorn
+python-dotenv
+pandas
+pydantic
+pydantic[email]
+pypdf
+requests
+reportlab
+matplotlib
+httpx
