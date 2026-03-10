@@ -223,10 +223,9 @@ async def get_elaboradores():
 @router.post(
     "/process-draft",
     response_class=Response,
-    summary="Procesar borrador PDF y aplicar plantilla institucional",
+    summary="Procesar borrador PDF y genera certificado final",
     description="""
-    Recibe un archivo PDF borrador y le aplica la plantilla institucional (form.pdf)
-    para generar el certificado final.
+    Genera el certificado final a partir del borrador en PDF generado.
     
     El archivo debe ser un PDF válido con tamaño máximo de 10MB.
     """

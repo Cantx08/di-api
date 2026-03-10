@@ -10,3 +10,5 @@ requests
 reportlab
 matplotlib
 httpx
+azure-storage-blob
+python-multipart

@@ -1,9 +1,12 @@
+import os
+import io
 from functools import lru_cache
 import unicodedata
 import logging
 import pandas as pd
 from typing import Dict, Optional, Tuple, List
 from collections import defaultdict
+from azure.storage.blob import BlobServiceClient
 
 from ..domain.sjr_repository import ISJRRepository
 
@@ -90,11 +93,27 @@ class SJRFileRepository(ISJRRepository):
 
     def _load_data(self) -> None:
         """
-        Carga el CSV, calcula percentiles y puebla el caché indexado por Sourceid.
+        Carga el CSV desde Azure Blob Storage, calcula percentiles y puebla el caché.
         """
+        connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+        container_name = os.getenv("AZURE_CONTAINER_NAME", "datos-csv")
+        # Asumimos que self._csv_path ahora podría traer el nombre del blob si estamos en la nube
+        blob_name = os.getenv("SJR_BLOB_NAME", "df_sjr_24_04_2025.csv")
+
         try:
-            # Leer CSV forzando string para no perder datos
-            df = pd.read_csv(self._csv_path, sep=';', decimal=',', dtype=str)
+            if connection_string:
+                # 1. Leer desde Azure Blob Storage directamente a memoria
+                logger.info(f"Descargando {blob_name} desde Azure Blob Storage...")
+                blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+                blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+                
+                # Descargar a un flujo de bytes en memoria
+                stream = blob_client.download_blob().readall()
+                df = pd.read_csv(io.BytesIO(stream), sep=';', decimal=',', dtype=str)
+            else:
+                # 2. Fallback: Leer en local (para cuando programas en tu PC sin internet o testing)
+                logger.info(f"Leyendo archivo local desde {self._csv_path}...")
+                df = pd.read_csv(self._csv_path, sep=';', decimal=',', dtype=str)
             
             # Limpiar nombres de columnas
             df.columns = [c.strip() for c in df.columns]
@@ -150,7 +169,7 @@ class SJRFileRepository(ISJRRepository):
                 except (ValueError, TypeError):
                     continue
 
-            # Ordenamos las listas para poder calcular la posición (ranking relativo)
+            # Ordenamos las listas para poder calcular la posición
             for key in category_universes:
                 category_universes[key].sort()
 
