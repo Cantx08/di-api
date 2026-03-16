@@ -20,11 +20,16 @@ class Settings:
     SCOPUS_API_KEY: str = os.getenv("SCOPUS_API_KEY", "")
     SCOPUS_INST_TOKEN: str = os.getenv("SCOPUS_INST_TOKEN", "")
 
-    # Rutas de Archivos (Data estática)
+    # Rutas de Archivos en local
     BASE_DIR = Path(__file__).resolve().parent.parent
     DATA_DIR = BASE_DIR / "data"
     SJR_CSV_PATH: str = os.getenv("SJR_CSV_PATH", str(DATA_DIR / "df_sjr_24_04_2025.csv"))
     AREAS_CSV_PATH: str = os.getenv("AREAS_CSV_PATH", str(DATA_DIR / "areas_categories.csv"))
+
+    # Azure Blob Storage Variables
+    AZURE_STORAGE_CONNECTION_STRING: str = os.getenv("AZURE_STORAGE_CONNECTION_STRING", "")
+    AZURE_CONTAINER_NAME: str = os.getenv("AZURE_CONTAINER_NAME", "datos-sjr")
+    SJR_BLOB_NAME: str = os.getenv("SJR_BLOB_NAME", "df_sjr_24_04_2025.csv")
 
 
 class Container:

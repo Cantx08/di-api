@@ -22,11 +22,14 @@ class SJRFileRepository(ISJRRepository):
     2. Fallback por nombre normalizado de revista
     """
 
-    def __init__(self, csv_path: str):
+    def __init__(self, csv_path: str, azure_conn_str: str = "", azure_container: str = "", azure_blob: str = ""):
         self._csv_path = csv_path
-        # Caché primario: (sourceid, año) -> (áreas, categorías)
+        self._azure_conn_str = azure_conn_str
+        self._azure_container = azure_container
+        self._azure_blob = azure_blob
+        
+        # Cachés
         self._sourceid_cache: Dict[Tuple[str, int], Tuple[List[str], List[str]]] = {}
-        # Caché secundario (fallback): (nombre_normalizado, año) -> (áreas, categorías)
         self._name_cache: Dict[Tuple[str, int], Tuple[List[str], List[str]]] = {}
         self._max_year_available: int = 0
         self._load_data()
@@ -95,23 +98,19 @@ class SJRFileRepository(ISJRRepository):
         """
         Carga el CSV desde Azure Blob Storage, calcula percentiles y puebla el caché.
         """
-        connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-        container_name = os.getenv("AZURE_CONTAINER_NAME", "datos-csv")
-        # Asumimos que self._csv_path ahora podría traer el nombre del blob si estamos en la nube
-        blob_name = os.getenv("SJR_BLOB_NAME", "df_sjr_24_04_2025.csv")
 
         try:
-            if connection_string:
+            if self._azure_conn_str:
                 # 1. Leer desde Azure Blob Storage directamente a memoria
-                logger.info(f"Descargando {blob_name} desde Azure Blob Storage...")
-                blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-                blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+                logger.info(f"Descargando {self._azure_blob} desde Azure Blob Storage...")
+                blob_service_client = BlobServiceClient.from_connection_string(self._azure_conn_str)
+                blob_client = blob_service_client.get_blob_client(container=self._azure_container, blob=self._azure_blob)
                 
                 # Descargar a un flujo de bytes en memoria
                 stream = blob_client.download_blob().readall()
                 df = pd.read_csv(io.BytesIO(stream), sep=';', decimal=',', dtype=str)
             else:
-                # 2. Fallback: Leer en local (para cuando programas en tu PC sin internet o testing)
+                # 2. Fallback: Leer en local
                 logger.info(f"Leyendo archivo local desde {self._csv_path}...")
                 df = pd.read_csv(self._csv_path, sep=';', decimal=',', dtype=str)
             

@@ -11,4 +11,5 @@ reportlab
 matplotlib
 httpx
 azure-storage-blob
+azure-identity
 python-multipart

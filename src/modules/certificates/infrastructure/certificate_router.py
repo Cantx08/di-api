@@ -63,7 +63,12 @@ def get_publication_service() -> PublicationService:
         api_key=container.settings.SCOPUS_API_KEY,
         inst_token=container.settings.SCOPUS_INST_TOKEN
     )
-    sjr_repo = SJRFileRepository(csv_path=container.settings.SJR_CSV_PATH)
+    sjr_repo = SJRFileRepository(
+        csv_path=container.settings.SJR_CSV_PATH,
+        azure_conn_str=container.settings.AZURE_STORAGE_CONNECTION_STRING,
+        azure_container=container.settings.AZURE_CONTAINER_NAME,
+        azure_blob=container.settings.SJR_BLOB_NAME
+    )
 
     return PublicationService(
         publication_repo=publication_repo,
