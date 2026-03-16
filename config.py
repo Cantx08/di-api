@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SCOPUS_API_KEY = os.getenv("SCOPUS_API_KEY")
+SCOPUS_INST_TOKEN = os.getenv("SCOPUS_INST_TOKEN")
 SJR_CSV_PATH = os.getenv("SJR_CSV_PATH")
 AZURE_STORAGE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 AZURE_CONTAINER_NAME = os.getenv("AZURE_CONTAINER_NAME")

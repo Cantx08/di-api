@@ -27,7 +27,8 @@ def get_service() -> PublicationService:
     container = get_container()
 
     publication_repo = ScopusPublicationRepository(
-        api_key=container.settings.SCOPUS_API_KEY
+        api_key=container.settings.SCOPUS_API_KEY,
+        inst_token=container.settings.SCOPUS_INST_TOKEN
     )
     sjr_repo = SJRFileRepository(csv_path=container.settings.SJR_CSV_PATH)
 
@@ -45,7 +46,8 @@ def get_subject_area_service() -> SubjectAreaService:
     container = get_container()
 
     author_sa_repo = ScopusAuthorSubjectAreaRepository(
-        api_key=container.settings.SCOPUS_API_KEY
+        api_key=container.settings.SCOPUS_API_KEY,
+        inst_token=container.settings.SCOPUS_INST_TOKEN
     )
 
     return SubjectAreaService(author_sa_repo=author_sa_repo)
@@ -71,7 +73,7 @@ async def get_publications_by_scopus_id(
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener publicaciones de Scopus: {str(e)}",
-        )
+        ) from e
 
 
 @router.get(
@@ -96,7 +98,7 @@ async def get_publications_by_scopus_ids(
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener publicaciones: {str(e)}",
-        )
+        ) from e
 
 
 @router.get(
@@ -115,7 +117,7 @@ async def get_publication_stats(
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener estadísticas: {str(e)}",
-        )
+        ) from e
 
 
 @router.get(
@@ -142,4 +144,4 @@ async def get_author_subject_areas(
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener áreas temáticas: {str(e)}",
-        )
+        ) from e

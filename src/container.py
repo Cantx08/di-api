@@ -1,3 +1,7 @@
+"""
+Contenedor de dependencias globales para la aplicación.
+"""
+
 from functools import lru_cache
 import os
 from pathlib import Path
@@ -14,6 +18,7 @@ class Settings:
 
     # Scopus & External APIs
     SCOPUS_API_KEY: str = os.getenv("SCOPUS_API_KEY", "")
+    SCOPUS_INST_TOKEN: str = os.getenv("SCOPUS_INST_TOKEN", "")
 
     # Rutas de Archivos (Data estática)
     BASE_DIR = Path(__file__).resolve().parent.parent

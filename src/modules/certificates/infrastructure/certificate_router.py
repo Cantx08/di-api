@@ -60,7 +60,8 @@ def get_publication_service() -> PublicationService:
     container = get_container()
 
     publication_repo = ScopusPublicationRepository(
-        api_key=container.settings.SCOPUS_API_KEY
+        api_key=container.settings.SCOPUS_API_KEY,
+        inst_token=container.settings.SCOPUS_INST_TOKEN
     )
     sjr_repo = SJRFileRepository(csv_path=container.settings.SJR_CSV_PATH)
 
@@ -77,7 +78,8 @@ def get_subject_area_service() -> SubjectAreaService:
     """
     container = get_container()
     author_sa_repo = ScopusAuthorSubjectAreaRepository(
-        api_key=container.settings.SCOPUS_API_KEY
+        api_key=container.settings.SCOPUS_API_KEY,
+        inst_token=container.settings.SCOPUS_INST_TOKEN
     )
     return SubjectAreaService(author_sa_repo=author_sa_repo)
 
@@ -144,7 +146,7 @@ async def generate_certificate(
                 scopus_areas = await subject_area_service.get_subject_areas_by_scopus_id(scopus_id)
                 all_subject_areas.update(scopus_areas)
             except Exception:
-                pass  # Fallback: sin áreas para este ID
+                pass
 
         # Eliminar duplicados basados en scopus_id
         seen_ids = set()
@@ -202,12 +204,12 @@ async def generate_certificate(
         )
 
     except ValueError as ve:
-        raise HTTPException(status_code=400, detail=f"Datos inválidos: {str(ve)}")
+        raise HTTPException(status_code=400, detail=f"Datos inválidos: {str(ve)}") from ve
     except Exception as e:
         import traceback
         print(f"[CERT ERROR] Traceback completo:")
         print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Error generando el certificado: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generando el certificado: {str(e)}") from e
 
 
 @router.get(

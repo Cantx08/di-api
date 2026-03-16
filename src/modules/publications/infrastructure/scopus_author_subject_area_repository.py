@@ -16,12 +16,14 @@ class ScopusAuthorSubjectAreaRepository(IAuthorSubjectAreaRepository):
     Author Retrieval de Scopus (vista ENHANCED).
     """
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, inst_token: str):
         self._api_key = api_key
+        self._inst_token = inst_token
         self._base_url = "https://api.elsevier.com"
         self._headers = {
             "Accept": "application/json",
-            "X-ELS-APIKey": self._api_key
+            "X-ELS-APIKey": self._api_key,
+            "X-ELS-Insttoken": self._inst_token
         }
         self._timeout = Timeout(60.0, connect=10.0)
 
